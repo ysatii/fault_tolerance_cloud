@@ -1,0 +1,46 @@
+- name: web1
+  hosts: my
+  remote_user: testuser
+  become: yes
+  tasks:
+  
+    - name: Возврат информации об установленных пакетах как факты
+      package_facts:
+        manager: "auto"
+    
+    - name: Update apt cache and install Nginx if not install Nginx
+      apt:
+        name: nginx
+        state: latest
+        update_cache: yes
+      when: "'nginx' not in ansible_facts.packages"
+    
+      
+    - name: Get nginx Service Status
+      ansible.builtin.systemd:
+        name: "nginx"
+      register: nginx_service_status
+
+- name: web1
+  hosts: my1
+  remote_user: testuser
+  become: yes
+  tasks:
+
+     - name: замена сервер1 
+       replace:
+         path: "/var/www/html/index.nginx-debian.html"
+         regexp: '^<h1>Welcome to nginx!</h1>$'
+         replace: '<h1>Welcome to nginx! server1</h1> '
+
+- name: web2
+  hosts: my2
+  remote_user: testuser
+  become: yes
+  tasks:
+
+     - name: замена сервер2 
+       replace:
+         path: "/var/www/html/index.nginx-debian.html"
+         regexp: '^<h1>Welcome to nginx!</h1>$'
+         replace: '<h1>Welcome to nginx! server2</h1> '
